@@ -53,10 +53,22 @@ while [ $(date +%s) -lt $end_time ]; do
   fi
 done
 
+# Calculate final statistics
+elapsed_time=$(( end_time - start_time ))
+total_words=$(( correct_words + incorrect_words ))
+wpm=$(( (correct_words * 60) / elapsed_time ))
+accuracy=0
+if [[ $total_words -gt 0 ]]; then
+    accuracy=$(( (correct_words * 100) / total_words ))
+fi
+
 clear
 echo "------------------------------------------"
-echo "Result"
+echo "Results"
 echo ""
-echo "Correct: $correct_words"
-echo "Incorrect: $incorrect_words"
+echo "WPM $wpm"
+echo "Keystrokes ${#user_input}"
+echo "Accuracy $accuracy%"
+echo "Correct words $correct_words"
+echo "Wrong Words $incorrect_words"
 echo "------------------------------------------"

@@ -96,10 +96,18 @@ display_state() {
   local words_display_bottom=""
 
   for i in {0..10}; do
-    words_display_top+="${word_list[$i]} "
+    if [[ $i -eq $current_word_index ]]; then
+      words_display_top+="$(printf "\e[32m%s\e[0m " "${word_list[$i]}")"  # Highlight current word in green
+    else
+      words_display_top+="${word_list[$i]} "
+    fi
   done
   for i in {11..20}; do
-    words_display_bottom+="${word_list[$i]} "
+    if [[ $i -eq $current_word_index ]]; then
+      words_display_bottom+="$(printf "\e[32m%s\e[0m " "${word_list[$i]}")"  # Highlight current word in green
+    else
+      words_display_bottom+="${word_list[$i]} "
+    fi
   done
 
   draw_new_line "$typing_table_width" "$words_display_top" "" "center" "" # Display the top line of words

@@ -1,71 +1,12 @@
 #!/bin/zsh
 
-# Function to generate a random word
-generate_random_word() {
-  local words=("apple" "banana" "cherry" "date" "elderberry" "fig" "grape" "honeydew")
-  local random_index=$(( $(od -An -N2 -i /dev/urandom) % ${#words[@]} + 1 ))
-  echo ${words[$random_index]}
-}
+# Configurable variables
+table_width=42
+header_separator_char="═"
+data_separator_char="─"
+test_duration=5
 
-# Function to display current state
-display_state() {
-  clear
-  echo "------------------------------------------"
-  echo "     $random_word"
-  echo ""
-  echo "     $user_input"
-  echo "------------------------------------------"
-}
-
-# Initialize variables
-start_time=$(date +%s)
-end_time=$(( start_time + 5 )) # + <time in seconds>
-random_word=$(generate_random_word)
-user_input=""
-correct_words=0
-incorrect_words=0
-total_keystrokes=0
-
-display_state
-
-while [ $(date +%s) -lt $end_time ]; do
-  remaining_time=$(( end_time - $(date +%s) ))
-  read -t $remaining_time -k 1 char || break
-
-  total_keystrokes=$((total_keystrokes + 1))  # Increment for every keystroke
-
-  if [[ "$char" == $'\177' ]]; then  # backspace keystroke
-    user_input=${user_input%?}  # remove last character
-    display_state
-  elif [[ "$char" == " " ]]; then # space keystroke
-    echo
-    if [[ "$user_input" == "$random_word" ]]; then
-      correct_words=$((correct_words + 1))
-      random_word=$(generate_random_word)
-      user_input=""
-      display_state
-    else
-      incorrect_words=$((incorrect_words + 1))
-      random_word=$(generate_random_word)
-      user_input=""
-      display_state
-    fi
-  else
-    user_input+=$char
-    display_state
-  fi
-done
-
-# Calculate final statistics
-elapsed_time=$(( end_time - start_time ))
-total_words=$(( correct_words + incorrect_words ))
-wpm=$(( (correct_words * 60) / elapsed_time ))
-accuracy=0
-if [[ $total_words -gt 0 ]]; then
-    accuracy=$(( (correct_words * 100) / total_words ))
-fi
-
-# Functions to render parts of the box dynamically
+# Table drawing functions
 draw_top_border() {
     local width="$1"
     printf "╔%*s╗\n" "$width" | sed 's/ /═/g'
@@ -126,27 +67,85 @@ right_align() {
     printf "║  %-10s %$((width - 15))s  ║\n" "$label" "$value"
 }
 
-table_width=42
+# Typing test functions
+generate_random_word() {
+  local words=("apple" "banana" "cherry" "date" "elderberry" "fig" "grape" "honeydew")
+  local random_index=$(( $(od -An -N2 -i /dev/urandom) % ${#words[@]} + 1 ))
+  echo ${words[$random_index]}
+}
+
+# Function to display current state (TODO: replace with table functions)
+display_state() {
+  clear
+  echo "------------------------------------------"
+  echo "     $random_word"
+  echo ""
+  echo "     $user_input"
+  echo "------------------------------------------"
+}
+
+# Initialize variables
+start_time=$(date +%s)
+end_time=$(( start_time + test_duration ))
+random_word=$(generate_random_word)
+user_input=""
+correct_words=0
+incorrect_words=0
+total_keystrokes=0
+
+display_state
+
+while [ $(date +%s) -lt $end_time ]; do
+  remaining_time=$(( end_time - $(date +%s) ))
+  read -t $remaining_time -k 1 char || break
+
+  total_keystrokes=$((total_keystrokes + 1))  # Increment for every keystroke
+
+  if [[ "$char" == $'\177' ]]; then  # backspace keystroke
+    user_input=${user_input%?}  # remove last character
+    display_state
+  elif [[ "$char" == " " ]]; then # space keystroke
+    echo
+    if [[ "$user_input" == "$random_word" ]]; then
+      correct_words=$((correct_words + 1))
+      random_word=$(generate_random_word)
+      user_input=""
+      display_state
+    else
+      incorrect_words=$((incorrect_words + 1))
+      random_word=$(generate_random_word)
+      user_input=""
+      display_state
+    fi
+  else
+    user_input+=$char
+    display_state
+  fi
+done
+
+# Calculate final statistics
+elapsed_time=$(( end_time - start_time ))
+total_words=$(( correct_words + incorrect_words ))
+wpm=$(( (correct_words * 60) / elapsed_time ))
+accuracy=0
+if [[ $total_words -gt 0 ]]; then
+    accuracy=$(( (correct_words * 100) / total_words ))
+fi
 
 # Render Result Table
 clear 
 
 draw_top_border "$table_width"
 draw_new_line "$table_width" "Result" "" "center"
-draw_separator "$table_width" "═"
-
+draw_separator "$table_width" "$header_separator_char"
 draw_new_line "$table_width"
-
 draw_new_line "$table_width" "$wpm WPM" "" "center"
 draw_new_line "$table_width"
-
-draw_separator "$table_width"
+draw_separator "$table_width" "$data_separator_char"
 draw_new_line "$table_width" "Keystrokes" "$total_keystrokes" "right"
 draw_new_line "$table_width" "Accuracy" "$accuracy%" "right"
 draw_new_line "$table_width" "Correct" "$correct_words" "right"
 draw_new_line "$table_width" "Incorrect" "$incorrect_words" "right"
-draw_separator "$table_width"
-
+draw_separator "$table_width" "$data_separator_char"
 draw_new_line "$table_width"
-
 draw_bottom_border "$table_width"

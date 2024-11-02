@@ -3,6 +3,7 @@
 # Configurable variables
 typing_table_width=80
 result_table_width=42
+prompt_char=">"
 header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
@@ -85,7 +86,7 @@ display_state() {
 
   draw_new_line "$typing_table_width" "$random_word" "" "center" ""
   draw_separator "$typing_table_width" "" ""
-  echo "$user_input"
+  echo "$prompt_char $user_input"
 }
 
 # Initialize variables

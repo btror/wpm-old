@@ -76,19 +76,29 @@ draw_bottom_border() {
     printf "╚%*s╝\n" "$width" | sed 's/ /═/g'
 }
 
-draw_horizontal_border() {
-    local width="$1"
-    printf "╠%*s╣\n" "$width" | sed 's/ /═/g'
-}
-
 draw_separator() {
     local width="$1"
-    printf "║%*s║\n" "$width" | sed 's/ /─/g'
+    local char="${2:-─}" # Default to '─' if no character is provided
+    if [[ "$char" == "═" ]]; then
+        printf "╠%*s╣\n" "$width" | sed "s/ /$char/g"
+    else
+        printf "║%*s║\n" "$width" | sed "s/ /$char/g"
+    fi
 }
 
-draw_empty_line() {
+draw_new_line() {
     local width="$1"
-    printf "║%*s║\n" "$width" ""
+    local label="${2:-}" # Label; default is empty
+    local value="${3:-}" # Value; default is empty
+    local align="${4:-}" # Alignment flag: 'center' or 'right'
+
+    if [[ "$align" == "center" ]]; then
+        center_text_in_box "$label" "$width"
+    elif [[ "$align" == "right" ]]; then
+        right_align_in_box "$label" "$value" "$width"
+    else
+        printf "║%*s║\n" "$width" "" # Empty line if no alignment specified
+    fi
 }
 
 center_text_in_box() {
@@ -111,17 +121,23 @@ table_width=42
 
 # Render Result Table
 clear 
+
 draw_top_border "$table_width"
-center_text_in_box "Result" "$table_width"
-draw_horizontal_border "$table_width"
-draw_empty_line "$table_width"
-center_text_in_box "WPM $wpm" "$table_width"
-draw_empty_line "$table_width"
+draw_new_line "$table_width" "Result" "" "center"
+draw_separator "$table_width" "═"
+
+draw_new_line "$table_width"
+
+draw_new_line "$table_width" "WPM $wpm" "" "center"
+draw_new_line "$table_width"
+
 draw_separator "$table_width"
-right_align_in_box "Keystrokes" "$total_keystrokes" "$table_width"
-right_align_in_box "Accuracy" "$accuracy%" "$table_width"
-right_align_in_box "Correct" "$correct_words" "$table_width"
-right_align_in_box "Incorrect" "$incorrect_words" "$table_width"
+draw_new_line "$table_width" "Keystrokes" "$total_keystrokes" "right"
+draw_new_line "$table_width" "Accuracy" "$accuracy%" "right"
+draw_new_line "$table_width" "Correct" "$correct_words" "right"
+draw_new_line "$table_width" "Incorrect" "$incorrect_words" "right"
 draw_separator "$table_width"
-draw_empty_line "$table_width"
+
+draw_new_line "$table_width"
+
 draw_bottom_border "$table_width"

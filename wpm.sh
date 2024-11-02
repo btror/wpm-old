@@ -1,10 +1,12 @@
 #!/bin/zsh
 
 # Configurable variables
-table_width=42
+typing_table_width=80
+result_table_width=42
 header_separator_char="═"
 data_separator_char="─"
-test_duration=5
+vertical_border_char="║"
+test_duration=10
 
 # Table drawing functions
 draw_top_border() {
@@ -19,52 +21,55 @@ draw_bottom_border() {
 
 draw_separator() {
     local width="$1"
-    local char="${2:-─}" # Default to '─' if no character is provided
-    if [[ "$char" == "═" ]]; then
-        printf "╠%*s╣\n" "$width" | sed "s/ /$char/g"
+    local separator_char="${2:-─}" # Default to '─' if no character is provided
+    local vertical_border_char="${3:-}"
+
+    if [[ "$separator_char" == "═" ]]; then
+        printf "╠%*s╣\n" "$width" | sed "s/ /$separator_char/g"
     else
-        printf "║%*s║\n" "$width" | sed "s/ /$char/g"
+        printf "$vertical_border_char%*s$vertical_border_char\n" "$width" | sed "s/ /$separator_char/g"
     fi
 }
 
 draw_new_line() {
     local width="$1"
-    local label="${2:-}" # Label; default is empty
-    local value="${3:-}" # Value; default is empty
-    local align="${4:-}" # Alignment flag: 'center' or 'right'
+    local label="${2:-}" # default is empty
+    local value="${3:-}" # default is empty
+    local align="${4:-}" # center, left, or right
+    local border_char="${5:-}" # default is empty
 
     if [[ "$align" == "center" ]]; then
-        center_align "$label" "$width"
-    elif [[ "$align" == "left" ]]; then
-        left_align "$label" "$value" "$width"
+        center_align "$width" "$label" "$border_char"
     elif [[ "$align" == "right" ]]; then
-        right_align "$label" "$value" "$width"
+        right_align "$width" "$label" "$value" "$border_char"
     else
-        printf "║%*s║\n" "$width" "" # Empty line if no alignment specified
+        left_align "$width" "$label" "$value" "$border_char"
     fi
 }
 
 center_align() {
-    local label="$1"
-    local width="$2"
-    local text="$label"
-    local padding_left=$(( (width - ${#text}) / 2 ))
-    local padding_right=$(( width - ${#text} - padding_left ))
-    printf "║%${padding_left}s%s%${padding_right}s║\n" "" "$text" ""
+    local width="$1"
+    local label="$2"
+    local border_char="$3"
+    local padding_left=$(( (width - ${#label}) / 2 ))
+    local padding_right=$(( width - ${#label} - padding_left ))
+    printf "$border_char%${padding_left}s%s%${padding_right}s$border_char\n" "" "$label" ""
 }
 
 left_align() {
-    local label="$1"
-    local value="$2"
-    local width="$3"
-    printf "║  %-10s %-*s  ║\n" "$label" $((width - 15)) "$value"
+    local width="$1"
+    local label="$2"
+    local value="$3"
+    local border_char="$4"
+    printf "$border_char  %-10s %-*s  $border_char\n" "$label" $((width - 15)) "$value"
 }
 
 right_align() {
-    local label="$1"
-    local value="$2"
-    local width="$3"
-    printf "║  %-10s %$((width - 15))s  ║\n" "$label" "$value"
+    local width="$1"
+    local label="$2"
+    local value="$3"
+    local border_char="$4"
+    printf "$border_char  %-10s %$((width - 15))s  $border_char\n" "$label" "$value"
 }
 
 # Typing test functions
@@ -77,11 +82,10 @@ generate_random_word() {
 # Function to display current state (TODO: replace with table functions)
 display_state() {
   clear
-  echo "------------------------------------------"
-  echo "     $random_word"
-  echo ""
-  echo "     $user_input"
-  echo "------------------------------------------"
+
+  draw_new_line "$typing_table_width" "$random_word" "" "center" ""
+  draw_separator "$typing_table_width" "" ""
+  echo "$user_input"
 }
 
 # Initialize variables
@@ -135,17 +139,17 @@ fi
 # Render Result Table
 clear 
 
-draw_top_border "$table_width"
-draw_new_line "$table_width" "Result" "" "center"
-draw_separator "$table_width" "$header_separator_char"
-draw_new_line "$table_width"
-draw_new_line "$table_width" "$wpm WPM" "" "center"
-draw_new_line "$table_width"
-draw_separator "$table_width" "$data_separator_char"
-draw_new_line "$table_width" "Keystrokes" "$total_keystrokes" "right"
-draw_new_line "$table_width" "Accuracy" "$accuracy%" "right"
-draw_new_line "$table_width" "Correct" "$correct_words" "right"
-draw_new_line "$table_width" "Incorrect" "$incorrect_words" "right"
-draw_separator "$table_width" "$data_separator_char"
-draw_new_line "$table_width"
-draw_bottom_border "$table_width"
+draw_top_border "$result_table_width"
+draw_new_line "$result_table_width" "Result" "" "center" "$vertical_border_char"
+draw_separator "$result_table_width" "$header_separator_char" "$vertical_border_char"
+draw_new_line "$result_table_width" "" "" "" "$vertical_border_char"
+draw_new_line "$result_table_width" "$wpm WPM" "" "center" "$vertical_border_char"
+draw_new_line "$result_table_width" "" "" "" "$vertical_border_char"
+draw_separator "$result_table_width" "$data_separator_char" "$vertical_border_char"
+draw_new_line "$result_table_width" "Keystrokes" "$total_keystrokes" "right" "$vertical_border_char"
+draw_new_line "$result_table_width" "Accuracy" "$accuracy%" "right" "$vertical_border_char"
+draw_new_line "$result_table_width" "Correct" "$correct_words" "right" "$vertical_border_char"
+draw_new_line "$result_table_width" "Incorrect" "$incorrect_words" "right" "$vertical_border_char"
+draw_separator "$result_table_width" "$data_separator_char" "$vertical_border_char"
+draw_new_line "$result_table_width" "" "" "" "$vertical_border_char"
+draw_bottom_border "$result_table_width"

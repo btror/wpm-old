@@ -65,23 +65,17 @@ if [[ $total_words -gt 0 ]]; then
     accuracy=$(( (correct_words * 100) / total_words ))
 fi
 
-pad_center() {
-    local str="$1"
-    local width=$2
-    local padding=$(( (width - ${#str}) / 2 ))
-    printf "%${padding}s%s%${padding}s" "" "$str" ""
+center_text_in_box() {
+    local text="$1"
+    local width="$2"
+    local padding=$(( (width - ${#text}) / 2 ))
+    printf "║%${padding}s%s%${padding}s║\n" "" "$text" ""
 }
 
-pad_right() {
-    local str="$1"
-    local width=$2
-    printf "%-${width}s" "$str"
-}
-
-pad_right_align() {
+right_align_in_box() {
     local label="$1"
     local value="$2"
-    local width=$3
+    local width="$3"
     printf "║  %-10s %$((width - 15))s  ║\n" "$label" "$value"
 }
 
@@ -93,13 +87,13 @@ echo "╔═══════════════════════�
 echo "║  Result                                  ║"
 echo "║══════════════════════════════════════════║"
 echo "║                                          ║"
-printf "║%s║\n" "$(pad_center "$wpm WPM" $total_width)"
+center_text_in_box "$wpm WPM" "$total_width"
 echo "║                                          ║"
 echo "║------------------------------------------║"
-pad_right_align "Keystrokes" "$total_keystrokes" "$total_width"
-pad_right_align "Accuracy" "$accuracy%" "$total_width"
-pad_right_align "Correct" "$correct_words" "$total_width"
-pad_right_align "Incorrect" "$incorrect_words" "$total_width"
+right_align_in_box "Keystrokes" "$total_keystrokes" "$total_width"
+right_align_in_box "Accuracy" "$accuracy%" "$total_width"
+right_align_in_box "Correct" "$correct_words" "$total_width"
+right_align_in_box "Incorrect" "$incorrect_words" "$total_width"
 echo "║------------------------------------------║"
 echo "║                                          ║"
 echo "╚══════════════════════════════════════════╝"

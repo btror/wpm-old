@@ -137,7 +137,7 @@ draw_separator "$table_width" "═"
 
 draw_new_line "$table_width"
 
-draw_new_line "$table_width" "WPM $wpm" "" "center"
+draw_new_line "$table_width" "$wpm WPM" "" "center"
 draw_new_line "$table_width"
 
 draw_separator "$table_width"

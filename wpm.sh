@@ -78,6 +78,13 @@ pad_right() {
     printf "%-${width}s" "$str"
 }
 
+pad_right_align() {
+    local label="$1"
+    local value="$2"
+    local width=$3
+    printf "║  %-10s %$((width - 15))s  ║\n" "$label" "$value"
+}
+
 # Calculate width based on the longest possible line
 total_width=42
 
@@ -89,10 +96,10 @@ echo "║                                          ║"
 printf "║%s║\n" "$(pad_center "$wpm WPM" $total_width)"
 echo "║                                          ║"
 echo "║------------------------------------------║"
-printf "║  Keystrokes │ %s║\n" "$(pad_right "$total_keystrokes" $((total_width - 15)))"
-printf "║  Accuracy   │ %s║\n" "$(pad_right "$accuracy%" $((total_width - 15)))"
-printf "║  Correct    │ %s║\n" "$(pad_right "$correct_words" $((total_width - 15)))"
-printf "║  Incorrect  │ %s║\n" "$(pad_right "$incorrect_words" $((total_width - 15)))"
+pad_right_align "Keystrokes" "$total_keystrokes" "$total_width"
+pad_right_align "Accuracy" "$accuracy%" "$total_width"
+pad_right_align "Correct" "$correct_words" "$total_width"
+pad_right_align "Incorrect" "$incorrect_words" "$total_width"
 echo "║------------------------------------------║"
 echo "║                                          ║"
 echo "╚══════════════════════════════════════════╝"

@@ -21,8 +21,8 @@ draw_bottom_border() {
 
 draw_separator() {
     local width="$1"
-    local separator_char="${2:-─}" # Default to '─' if no character is provided
-    local vertical_border_char="${3:-}"
+    local separator_char="${2:-─}" # default is '─'
+    local vertical_border_char="${3:-}" # default is empty
 
     if [[ "$separator_char" == "═" ]]; then
         printf "╠%*s╣\n" "$width" | sed "s/ /$separator_char/g"
@@ -79,7 +79,7 @@ generate_random_word() {
   echo ${words[$random_index]}
 }
 
-# Function to display current state (TODO: replace with table functions)
+# Function to display current state
 display_state() {
   clear
 
@@ -99,6 +99,7 @@ total_keystrokes=0
 
 display_state
 
+# Main loop
 while [ $(date +%s) -lt $end_time ]; do
   remaining_time=$(( end_time - $(date +%s) ))
   read -t $remaining_time -k 1 char || break

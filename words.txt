@@ -1,0 +1,17 @@
+this
+is
+a
+test
+to
+see
+what
+happens
+when
+I
+have
+a
+file
+with
+words
+in
+it

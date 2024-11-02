@@ -66,10 +66,12 @@ if [[ $total_words -gt 0 ]]; then
 fi
 
 center_text_in_box() {
-    local text="$1"
+    local label="$1"
     local width="$2"
-    local padding=$(( (width - ${#text}) / 2 ))
-    printf "║%${padding}s%s%${padding}s║\n" "" "$text" ""
+    local text="$label"
+    local padding_left=$(( (width - ${#text}) / 2 ))
+    local padding_right=$(( width - ${#text} - padding_left ))
+    printf "║%${padding_left}s%s%${padding_right}s║\n" "" "$text" ""
 }
 
 right_align_in_box() {
@@ -84,10 +86,10 @@ total_width=42
 
 clear 
 echo "╔══════════════════════════════════════════╗"
-echo "║  Result                                  ║"
+center_text_in_box "Result" "$total_width"
 echo "║══════════════════════════════════════════║"
 echo "║                                          ║"
-center_text_in_box "$wpm WPM" "$total_width"
+center_text_in_box "WPM $wpm" "$total_width"
 echo "║                                          ║"
 echo "║------------------------------------------║"
 right_align_in_box "Keystrokes" "$total_keystrokes" "$total_width"

@@ -19,7 +19,7 @@ display_state() {
 
 # Initialize variables
 start_time=$(date +%s)
-end_time=$(( start_time + 15 )) # + <time in seconds>
+end_time=$(( start_time + 5 )) # + <time in seconds>
 random_word=$(generate_random_word)
 user_input=""
 correct_words=0
@@ -65,14 +65,33 @@ if [[ $total_words -gt 0 ]]; then
     accuracy=$(( (correct_words * 100) / total_words ))
 fi
 
-clear
-echo "------------------------------------------"
-echo "Result"
-echo ""
-echo "               $wpm WPM"
-echo ""
-echo "Keystrokes               $total_keystrokes"
-echo "Accuracy                 $accuracy%"
-echo "Correct words            $correct_words"
-echo "Wrong Words              $incorrect_words"
-echo "------------------------------------------"
+pad_center() {
+    local str="$1"
+    local width=$2
+    local padding=$(( (width - ${#str}) / 2 ))
+    printf "%${padding}s%s%${padding}s" "" "$str" ""
+}
+
+pad_right() {
+    local str="$1"
+    local width=$2
+    printf "%-${width}s" "$str"
+}
+
+# Calculate width based on the longest possible line
+total_width=42
+
+clear 
+echo "╔══════════════════════════════════════════╗"
+echo "║  Result                                  ║"
+echo "║══════════════════════════════════════════║"
+echo "║                                          ║"
+printf "║%s║\n" "$(pad_center "$wpm WPM" $total_width)"
+echo "║                                          ║"
+echo "║------------------------------------------║"
+printf "║  Keystrokes │ %s║\n" "$(pad_right "$total_keystrokes" $((total_width - 15)))"
+printf "║  Accuracy   │ %s║\n" "$(pad_right "$accuracy%" $((total_width - 15)))"
+printf "║  Correct    │ %s║\n" "$(pad_right "$correct_words" $((total_width - 15)))"
+printf "║  Incorrect  │ %s║\n" "$(pad_right "$incorrect_words" $((total_width - 15)))"
+echo "║                                          ║"
+echo "╚══════════════════════════════════════════╝"

@@ -23,6 +23,7 @@ end_time=$(( start_time + 5 ))
 random_word=$(generate_random_word)
 user_input=""
 correct_words=0
+incorrect_words=0
 
 display_state
 
@@ -30,13 +31,18 @@ while [ $(date +%s) -lt $end_time ]; do
   remaining_time=$(( end_time - $(date +%s) ))
   read -t $remaining_time -k 1 char || break
 
-  if [[ "$char" == $'\177' ]]; then  # Check for backspace
-    user_input=${user_input%?}  # Remove last character
+  if [[ "$char" == $'\177' ]]; then  # backspace keystroke
+    user_input=${user_input%?}  # remove last character
     display_state
-  elif [[ "$char" == " " ]]; then
+  elif [[ "$char" == " " ]]; then # space keystroke
     echo
     if [[ "$user_input" == "$random_word" ]]; then
       correct_words=$((correct_words + 1))
+      random_word=$(generate_random_word)
+      user_input=""
+      display_state
+    else
+      incorrect_words=$((incorrect_words + 1))
       random_word=$(generate_random_word)
       user_input=""
       display_state
@@ -49,6 +55,8 @@ done
 
 clear
 echo "------------------------------------------"
-echo "Time's up!"
-echo "You correctly typed $correct_words words!"
+echo "Result"
+echo ""
+echo "Correct: $correct_words"
+echo "Incorrect: $incorrect_words"
 echo "------------------------------------------"

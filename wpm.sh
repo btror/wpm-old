@@ -2,7 +2,7 @@
 
 # Function to generate a random word
 generate_random_word() {
-  local words=("apple" "banana" "cherry" "date" "elderberry" "fig" "grape" "honeydew")
+  local words=("apple" "banana" "cherry" "date" "elderberry" "fig" "grape" "honeydew" "test" "result" "sweet" "and" "this" "amazing")
   local random_index=$(( $(od -An -N2 -i /dev/urandom) % ${#words[@]} + 1 ))
   echo ${words[$random_index]}
 }
@@ -22,6 +22,7 @@ start_time=$(date +%s)
 end_time=$(( start_time + 5 ))
 random_word=$(generate_random_word)
 user_input=""
+correct_words=0  # Initialize counter
 
 display_state
 
@@ -35,6 +36,7 @@ while [ $(date +%s) -lt $end_time ]; do
   if [[ "$char" == " " ]]; then
     echo # Print newline after space
     if [[ "$user_input" == "$random_word" ]]; then
+      correct_words=$((correct_words + 1))  # Increment counter
       random_word=$(generate_random_word)
       user_input=""
       display_state
@@ -48,4 +50,5 @@ done
 clear
 echo "------------------------------------------"
 echo "Time's up!"
+echo "You correctly typed $correct_words words!"
 echo "------------------------------------------"

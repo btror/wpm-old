@@ -93,5 +93,6 @@ printf "║  Keystrokes │ %s║\n" "$(pad_right "$total_keystrokes" $((total_w
 printf "║  Accuracy   │ %s║\n" "$(pad_right "$accuracy%" $((total_width - 15)))"
 printf "║  Correct    │ %s║\n" "$(pad_right "$correct_words" $((total_width - 15)))"
 printf "║  Incorrect  │ %s║\n" "$(pad_right "$incorrect_words" $((total_width - 15)))"
+echo "║------------------------------------------║"
 echo "║                                          ║"
 echo "╚══════════════════════════════════════════╝"

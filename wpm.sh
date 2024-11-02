@@ -7,7 +7,7 @@ prompt_char=">"
 header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
-test_duration=10
+test_duration=15
 
 # Table drawing functions
 draw_top_border() {
@@ -75,16 +75,29 @@ right_align() {
 
 # Typing test functions
 generate_random_word() {
-  local words=("apple" "banana" "cherry" "date" "elderberry" "fig" "grape" "honeydew")
-  local random_index=$(( $(od -An -N2 -i /dev/urandom) % ${#words[@]} + 1 ))
+  local words=("apple" "banana" "cherry" "date" "elder" "fig" "grape" "honey")
+  local random_index=$(( $(od -An -N2 -i /dev/urandom) % ${#words[@]} ))
   echo ${words[$random_index]}
+}
+
+generate_word_list() {
+  local word_list=()
+  for i in {1..10}; do
+    word_list+=("$(generate_random_word)")
+  done
+  echo "${word_list[@]}"
 }
 
 # Function to display current state
 display_state() {
   clear
 
-  draw_new_line "$typing_table_width" "$random_word" "" "center" ""
+  local words_display=""
+  for word in "${word_list[@]}"; do
+    words_display+="$word "
+  done
+
+  draw_new_line "$typing_table_width" "$words_display" "" "center" "" # Display the list of words
   draw_separator "$typing_table_width" "" ""
   echo "$prompt_char $user_input"
 }
@@ -92,7 +105,8 @@ display_state() {
 # Initialize variables
 start_time=$(date +%s)
 end_time=$(( start_time + test_duration ))
-random_word=$(generate_random_word)
+word_list=($(generate_word_list))
+current_word_index=1
 user_input=""
 correct_words=0
 incorrect_words=0
@@ -112,17 +126,23 @@ while [ $(date +%s) -lt $end_time ]; do
     display_state
   elif [[ "$char" == " " ]]; then # space keystroke
     echo
-    if [[ "$user_input" == "$random_word" ]]; then
+
+    if [[ "$user_input" == "${word_list[$current_word_index]}" ]]; then
       correct_words=$((correct_words + 1))
-      random_word=$(generate_random_word)
-      user_input=""
-      display_state
     else
       incorrect_words=$((incorrect_words + 1))
-      random_word=$(generate_random_word)
-      user_input=""
-      display_state
     fi
+
+    # current_word_index=$((current_word_index + 1))
+
+    if [[ $current_word_index -ge ${#word_list[@]} ]]; then
+      word_list=($(generate_word_list))
+      current_word_index=0
+    fi
+
+    current_word_index=$((current_word_index + 1))
+    user_input=""
+    display_state
   else
     user_input+=$char
     display_state

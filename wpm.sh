@@ -65,6 +65,32 @@ if [[ $total_words -gt 0 ]]; then
     accuracy=$(( (correct_words * 100) / total_words ))
 fi
 
+# Functions to render parts of the box dynamically
+draw_top_border() {
+    local width="$1"
+    printf "╔%*s╗\n" "$width" | sed 's/ /═/g'
+}
+
+draw_bottom_border() {
+    local width="$1"
+    printf "╚%*s╝\n" "$width" | sed 's/ /═/g'
+}
+
+draw_horizontal_border() {
+    local width="$1"
+    printf "╠%*s╣\n" "$width" | sed 's/ /═/g'
+}
+
+draw_separator() {
+    local width="$1"
+    printf "║%*s║\n" "$width" | sed 's/ /─/g'
+}
+
+draw_empty_line() {
+    local width="$1"
+    printf "║%*s║\n" "$width" ""
+}
+
 center_text_in_box() {
     local label="$1"
     local width="$2"
@@ -81,21 +107,21 @@ right_align_in_box() {
     printf "║  %-10s %$((width - 15))s  ║\n" "$label" "$value"
 }
 
-# Calculate width based on the longest possible line
-total_width=42
+table_width=42
 
+# Render Result Table
 clear 
-echo "╔══════════════════════════════════════════╗"
-center_text_in_box "Result" "$total_width"
-echo "║══════════════════════════════════════════║"
-echo "║                                          ║"
-center_text_in_box "WPM $wpm" "$total_width"
-echo "║                                          ║"
-echo "║------------------------------------------║"
-right_align_in_box "Keystrokes" "$total_keystrokes" "$total_width"
-right_align_in_box "Accuracy" "$accuracy%" "$total_width"
-right_align_in_box "Correct" "$correct_words" "$total_width"
-right_align_in_box "Incorrect" "$incorrect_words" "$total_width"
-echo "║------------------------------------------║"
-echo "║                                          ║"
-echo "╚══════════════════════════════════════════╝"
+draw_top_border "$table_width"
+center_text_in_box "Result" "$table_width"
+draw_horizontal_border "$table_width"
+draw_empty_line "$table_width"
+center_text_in_box "WPM $wpm" "$table_width"
+draw_empty_line "$table_width"
+draw_separator "$table_width"
+right_align_in_box "Keystrokes" "$total_keystrokes" "$table_width"
+right_align_in_box "Accuracy" "$accuracy%" "$table_width"
+right_align_in_box "Correct" "$correct_words" "$table_width"
+right_align_in_box "Incorrect" "$incorrect_words" "$table_width"
+draw_separator "$table_width"
+draw_empty_line "$table_width"
+draw_bottom_border "$table_width"

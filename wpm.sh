@@ -7,7 +7,7 @@ prompt_char=">"
 header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
-test_duration=15
+test_duration=25
 
 # Table drawing functions
 draw_top_border() {
@@ -82,7 +82,7 @@ generate_random_word() {
 
 generate_word_list() {
   local word_list=()
-  for i in {1..10}; do
+  for i in {1..20}; do
     word_list+=("$(generate_random_word)")
   done
   echo "${word_list[@]}"
@@ -92,12 +92,17 @@ generate_word_list() {
 display_state() {
   clear
 
-  local words_display=""
-  for word in "${word_list[@]}"; do
-    words_display+="$word "
+  local words_display_top=""
+  local words_display_bottom=""
+  for i in {0..10}; do
+    words_display_top+="${word_list[$i]} "
+  done
+  for i in {11..20}; do
+    words_display_bottom+="${word_list[$i]} "
   done
 
-  draw_new_line "$typing_table_width" "$words_display" "" "center" "" # Display the list of words
+  draw_new_line "$typing_table_width" "$words_display_top" "" "center" "" # Display the top line of words
+  draw_new_line "$typing_table_width" "$words_display_bottom" "" "center" "" # Display the bottom line of words
   draw_separator "$typing_table_width" "" ""
   echo "$prompt_char $user_input"
 }
@@ -133,10 +138,8 @@ while [ $(date +%s) -lt $end_time ]; do
       incorrect_words=$((incorrect_words + 1))
     fi
 
-    # current_word_index=$((current_word_index + 1))
-
-    if [[ $current_word_index -ge ${#word_list[@]} ]]; then
-      word_list=($(generate_word_list))
+    if [[ $current_word_index -ge 10 ]]; then
+      word_list=("${word_list[@]:10}" $(generate_word_list | cut -d' ' -f1-10))
       current_word_index=0
     fi
 

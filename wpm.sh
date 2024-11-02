@@ -19,17 +19,20 @@ display_state() {
 
 # Initialize variables
 start_time=$(date +%s)
-end_time=$(( start_time + 5 ))
+end_time=$(( start_time + 15 )) # + <time in seconds>
 random_word=$(generate_random_word)
 user_input=""
 correct_words=0
 incorrect_words=0
+total_keystrokes=0
 
 display_state
 
 while [ $(date +%s) -lt $end_time ]; do
   remaining_time=$(( end_time - $(date +%s) ))
   read -t $remaining_time -k 1 char || break
+
+  total_keystrokes=$((total_keystrokes + 1))  # Increment for every keystroke
 
   if [[ "$char" == $'\177' ]]; then  # backspace keystroke
     user_input=${user_input%?}  # remove last character
@@ -64,11 +67,12 @@ fi
 
 clear
 echo "------------------------------------------"
-echo "Results"
+echo "Result"
 echo ""
-echo "WPM $wpm"
-echo "Keystrokes ${#user_input}"
-echo "Accuracy $accuracy%"
-echo "Correct words $correct_words"
-echo "Wrong Words $incorrect_words"
+echo "               $wpm WPM"
+echo ""
+echo "Keystrokes               $total_keystrokes"
+echo "Accuracy                 $accuracy%"
+echo "Correct words            $correct_words"
+echo "Wrong Words              $incorrect_words"
 echo "------------------------------------------"

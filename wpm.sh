@@ -76,7 +76,7 @@ right_align() {
 # Typing test functions
 generate_random_word() {
   local words=("apple" "banana" "cherry" "date" "elder" "fig" "grape" "honey")
-  local random_index=$(( $(od -An -N2 -i /dev/urandom) % ${#words[@]} ))
+  local random_index=$(( ( $(od -An -N2 -i /dev/urandom) % (${#words[@]}) ) + 1 ))
   echo ${words[$random_index]}
 }
 
@@ -94,6 +94,7 @@ display_state() {
 
   local words_display_top=""
   local words_display_bottom=""
+
   for i in {0..10}; do
     words_display_top+="${word_list[$i]} "
   done

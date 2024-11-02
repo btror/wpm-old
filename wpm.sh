@@ -93,15 +93,17 @@ draw_new_line() {
     local align="${4:-}" # Alignment flag: 'center' or 'right'
 
     if [[ "$align" == "center" ]]; then
-        center_text_in_box "$label" "$width"
+        center_align "$label" "$width"
+    elif [[ "$align" == "left" ]]; then
+        left_align "$label" "$value" "$width"
     elif [[ "$align" == "right" ]]; then
-        right_align_in_box "$label" "$value" "$width"
+        right_align "$label" "$value" "$width"
     else
         printf "║%*s║\n" "$width" "" # Empty line if no alignment specified
     fi
 }
 
-center_text_in_box() {
+center_align() {
     local label="$1"
     local width="$2"
     local text="$label"
@@ -110,7 +112,14 @@ center_text_in_box() {
     printf "║%${padding_left}s%s%${padding_right}s║\n" "" "$text" ""
 }
 
-right_align_in_box() {
+left_align() {
+    local label="$1"
+    local value="$2"
+    local width="$3"
+    printf "║  %-10s %-*s  ║\n" "$label" $((width - 15)) "$value"
+}
+
+right_align() {
     local label="$1"
     local value="$2"
     local width="$3"

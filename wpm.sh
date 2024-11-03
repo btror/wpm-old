@@ -55,8 +55,9 @@ center_align() {
     local width="$1"
     local label="$2"
     local border_char="$3"
-    local padding_left=$(( (width - ${#label}) / 2 ))
-    local padding_right=$(( width - ${#label} - padding_left ))
+    local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
+    local padding_left=$(( (width - ${#clean_label}) / 2 ))
+    local padding_right=$(( width - ${#clean_label} - padding_left ))
     printf "$border_char%${padding_left}s%s%${padding_right}s$border_char\n" "" "$label" ""
 }
 
@@ -65,7 +66,8 @@ left_align() {
     local label="$2"
     local value="$3"
     local border_char="$4"
-    printf "$border_char  %-10s %-*s  $border_char\n" "$label" $((width - 15)) "$value"
+    local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
+    printf "$border_char  %-10s %-*s  $border_char\n" "$clean_label" $((width - 15)) "$value"
 }
 
 right_align() {
@@ -73,7 +75,8 @@ right_align() {
     local label="$2"
     local value="$3"
     local border_char="$4"
-    printf "$border_char  %-10s %$((width - 15))s  $border_char\n" "$label" "$value"
+    local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
+    printf "$border_char  %-10s %$((width - 15))s  $border_char\n" "$clean_label" "$value"
 }
 
 # Typing test functions
@@ -84,8 +87,9 @@ generate_random_word() {
 }
 
 generate_word_list() {
+  local count="$1"
   local word_list=()
-  for i in {1..20}; do
+  for i in {1..$count}; do
     word_list+=("$(generate_random_word)")
   done
   printf "%s\n" "${word_list[@]}"
@@ -94,31 +98,21 @@ generate_word_list() {
 # Function to display current state
 display_state() {
   clear
+  word_list_top[$current_word_index]=$'\e[32m'"${word_list_top[current_word_index]}"$'\e[0m'
 
-  local words_display_top=""
-  local words_display_bottom=""
-
-  for i in {0..10}; do
-    if [[ $i -eq $current_word_index ]]; then
-      words_display_top+="$(printf "\e[32m%s\e[0m " "${word_list[$i]}")"  # Highlight current word in green
-    else
-      words_display_top+="${word_list[$i]} "
-    fi
-  done
-  for i in {11..20}; do
-      words_display_bottom+="${word_list[$i]} "
-  done
-
-  draw_new_line "$typing_table_width" "$words_display_top" "" "center" "" # Display the top line of words
-  draw_new_line "$typing_table_width" "$words_display_bottom" "" "center" "" # Display the bottom line of words
+  draw_new_line "$typing_table_width" "$word_list_top" "" "center" "" # Display the top line of words
+  draw_new_line "$typing_table_width" "$word_list_bottom" "" "center" "" # Display the bottom line of words
   draw_separator "$typing_table_width" "" ""
+
   printf "$prompt_char $user_input"
 }
 
 # Initialize variables
 start_time=$(date +%s)
 end_time=$(( start_time + test_duration ))
-word_list=($(generate_word_list))
+word_list=($(generate_word_list 20))
+word_list_top=("${word_list[@]:0:10}")
+word_list_bottom=("${word_list[@]:10}")
 current_word_index=1
 user_input=""
 correct_words=0
@@ -145,7 +139,10 @@ while [ $(date +%s) -lt $end_time ]; do
     fi
 
     if [[ $current_word_index -ge 10 ]]; then
-      word_list=("${word_list[@]:10}" $(generate_word_list | cut -d' ' -f1-10))
+      word_list=("${word_list[@]:10}" $(generate_word_list 10 | cut -d' ' -f1-10))
+      word_list_top=("${word_list[@]:0:10}")
+      word_list_bottom=("${word_list[@]:10}")
+
       current_word_index=0
     fi
 

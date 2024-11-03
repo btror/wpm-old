@@ -98,7 +98,7 @@ generate_word_list() {
 # Function to display current state
 display_state() {
   clear
-  word_list_top[$current_word_index]=$'\e[32m'"${word_list_top[current_word_index]}"$'\e[0m'
+  word_list_top[$current_word_index]=$'\e[47;40m'"${word_list_top[current_word_index]}"$'\e[0m' # Highlight current word
 
   draw_new_line "$typing_table_width" "$word_list_top" "" "center" "" # Display the top line of words
   draw_new_line "$typing_table_width" "$word_list_bottom" "" "center" "" # Display the bottom line of words

@@ -210,6 +210,54 @@ if [[ $total_words -gt 0 ]]; then
     accuracy=$(( (correct_words * 100) / total_words ))
 fi
 
+
+
+
+
+# Save results to JSON
+load_stats() {
+  if [ -f "./stats/stats.json" ]; then
+    cat "./stats/stats.json"
+  else
+    echo "{}"
+  fi
+}
+
+stats=$(load_stats)
+echo "STATS!"
+echo $stats
+sleep 15
+
+save_stats() {
+  local data="$1"
+  echo "DATA!"
+  echo $data
+  sleep 15
+  mkdir -p "./stats"
+  echo "$data" > "./stats/stats.json"
+}
+
+current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+new_entry="{\"date\":\"$current_date\",\"wpm\":$wpm,\"keystrokes\":$total_keystrokes,\"accuracy\":$accuracy,\"correct\":$correct_words,\"incorrect\":$incorrect_words}"
+if [[ $stats == "{}" ]]; then
+  stats="{\"$word_list_file_name\":[$new_entry]}"
+else
+  # Check if array for this file exists
+  if [[ $stats == *"\"$word_list_file_name\""* ]]; then
+    # Insert at the beginning of the existing array
+    stats=$(echo "$stats" | sed "s/\"$word_list_file_name\":\[/\"$word_list_file_name\":[$new_entry,/")
+  else
+    # Add new array for this file
+    stats=$(echo "$stats" | sed "s/^{/{\"$word_list_file_name\":[$new_entry],/")
+  fi
+fi
+
+save_stats "$stats"
+
+
+
+
+
 # Render Result Table
 echo
 sleep 1

@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# Hide cursor
+tput civis
+
 # Configurable variables
 typing_table_width=80
 result_table_width=42
@@ -77,7 +80,7 @@ right_align() {
 generate_random_word() {
   local words=("apple" "banana" "cherry" "date" "elder" "fig" "grape" "honey")
   local random_index=$(( ( $(od -An -N2 -i /dev/urandom) % (${#words[@]}) ) + 1 ))
-  echo ${words[$random_index]}
+  printf "%s\n" "${words[$random_index]}"
 }
 
 generate_word_list() {
@@ -85,7 +88,7 @@ generate_word_list() {
   for i in {1..20}; do
     word_list+=("$(generate_random_word)")
   done
-  echo "${word_list[@]}"
+  printf "%s\n" "${word_list[@]}"
 }
 
 # Function to display current state
@@ -104,7 +107,7 @@ display_state() {
   done
   for i in {11..20}; do
     if [[ $i -eq $current_word_index ]]; then
-      words_display_bottom+="$(printf "\e[32m%s\e[0m " "${word_list[$i]}")"  # Highlight current word in green
+      words_display_bottom+="${word_list[$i]} "  # Highlight current word in green
     else
       words_display_bottom+="${word_list[$i]} "
     fi
@@ -113,7 +116,7 @@ display_state() {
   draw_new_line "$typing_table_width" "$words_display_top" "" "center" "" # Display the top line of words
   draw_new_line "$typing_table_width" "$words_display_bottom" "" "center" "" # Display the bottom line of words
   draw_separator "$typing_table_width" "" ""
-  echo "$prompt_char $user_input"
+  printf "$prompt_char $user_input"
 }
 
 # Initialize variables
@@ -139,8 +142,6 @@ while [ $(date +%s) -lt $end_time ]; do
     user_input=${user_input%?}  # remove last character
     display_state
   elif [[ "$char" == " " ]]; then # space keystroke
-    echo
-
     if [[ "$user_input" == "${word_list[$current_word_index]}" ]]; then
       correct_words=$((correct_words + 1))
     else
@@ -187,3 +188,6 @@ draw_new_line "$result_table_width" "Incorrect" "$incorrect_words" "right" "$ver
 draw_separator "$result_table_width" "$data_separator_char" "$vertical_border_char"
 draw_new_line "$result_table_width" "" "" "" "$vertical_border_char"
 draw_bottom_border "$result_table_width"
+
+# Show cursor
+tput cnorm

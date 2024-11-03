@@ -11,7 +11,34 @@ data_separator_char="─"
 vertical_border_char="║"
 test_duration=60
 word_list_file_name="words_top-250-english-easy.txt"
-words=($(cat "./lists/$word_list_file_name"))
+
+# Add file selection menu
+select_word_list() {
+  local files=()
+  for file in ./lists/*.txt; do
+    files+=($(basename "$file"))
+  done
+
+  echo "Available word lists:"
+  echo "-------------------"
+  for i in {1..${#files[@]}}; do
+    echo "$i) ${files[$i]}"
+  done
+  echo "-------------------"
+  
+  local selection
+  while true; do
+    printf "Select a word list (1-${#files[@]}): "
+    read selection
+    if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#files[@]}" ]; then
+      word_list_file_name="${files[$selection]}"
+      break
+    fi
+    echo "Invalid selection. Please try again."
+  done
+}
+
+select_word_list
 
 # Table drawing functions
 draw_top_border() {
@@ -124,6 +151,7 @@ display_state() {
 # Initialize variables
 start_time=$(date +%s)
 end_time=$(( start_time + test_duration ))
+words=($(cat "./lists/$word_list_file_name"))
 word_list=($(generate_word_list 20))
 word_list_top=("${word_list[@]:0:10}")
 word_list_bottom=("${word_list[@]:10}")
@@ -181,6 +209,8 @@ if [[ $total_words -gt 0 ]]; then
 fi
 
 # Render Result Table
+echo
+sleep 1
 clear 
 
 draw_top_border "$result_table_width"

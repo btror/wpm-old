@@ -163,6 +163,8 @@ correct_words=0
 incorrect_words=0
 total_keystrokes=0
 
+tput civis # Hide cursor
+
 display_state
 
 # Main loop

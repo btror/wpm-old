@@ -1,4 +1,4 @@
-# ZSH Typing Speed Test
+# Shell Typing Speed Test
 
 ## Required Packages
 `sudo apt install jq`

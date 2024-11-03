@@ -10,7 +10,7 @@ header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
 test_duration=60
-word_list_file_name="words_top-1000-english-adv.txt"
+word_list_file_name="words_top-250-english-easy.txt"
 words=($(cat "./lists/$word_list_file_name"))
 
 # Table drawing functions

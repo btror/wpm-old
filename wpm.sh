@@ -10,7 +10,8 @@ header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
 test_duration=60
-words=($(cat ./lists/words_top-1000-english-adv.txt))
+word_list_file_name="words_top-1000-english-adv.txt"
+words=($(cat "./lists/$word_list_file_name"))
 
 # Table drawing functions
 draw_top_border() {
@@ -193,7 +194,7 @@ draw_new_line "$result_table_width" "Accuracy" "$accuracy%" "right" "$vertical_b
 draw_new_line "$result_table_width" "Correct" "$correct_words" "right" "$vertical_border_char"
 draw_new_line "$result_table_width" "Incorrect" "$incorrect_words" "right" "$vertical_border_char"
 draw_separator "$result_table_width" "$data_separator_char" "$vertical_border_char"
-draw_new_line "$result_table_width" "" "" "" "$vertical_border_char"
+draw_new_line "$result_table_width" "$word_list_file_name" "" "center" "$vertical_border_char"
 draw_bottom_border "$result_table_width"
 
 # Show cursor

@@ -235,8 +235,8 @@ if ! command -v jq &> /dev/null; then
 fi
 
 # Generate new entry
-current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-new_entry="{\"date\":\"$current_date\",\"wpm\":$wpm,\"keystrokes\":$total_keystrokes,\"accuracy\":$accuracy,\"correct\":$correct_words,\"incorrect\":$incorrect_words}"
+current_date=$(date -u +"%m/%d/%Y%l:%M%p")
+new_entry="{\"date\":\"$current_date\",\"wpm\":$wpm,\"test duration\":$test_duration,\"wpm\":$wpm,\"keystrokes\":$total_keystrokes,\"accuracy\":$accuracy,\"correct\":$correct_words,\"incorrect\":$incorrect_words}"
 
 # Load existing stats
 mkdir -p "./stats"

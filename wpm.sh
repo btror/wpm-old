@@ -106,11 +106,7 @@ display_state() {
     fi
   done
   for i in {11..20}; do
-    if [[ $i -eq $current_word_index ]]; then
-      words_display_bottom+="${word_list[$i]} "  # Highlight current word in green
-    else
       words_display_bottom+="${word_list[$i]} "
-    fi
   done
 
   draw_new_line "$typing_table_width" "$words_display_top" "" "center" "" # Display the top line of words

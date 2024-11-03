@@ -131,7 +131,7 @@ display_state() {
 
   if [[ -n $is_correct && $current_word_index -gt 1 ]]; then
     index=$((current_word_index - 1))
-    word_list_top[$index]=$(echo "${word_list_top[index]}" | sed 's/\x1b\[[0-9;]*m//g') # Remove existing highlights if any
+    word_list_top[$index]=$(printf "%s" "${word_list_top[index]}" | sed 's/\x1b\[[0-9;]*m//g') # Remove existing highlights if any
 
     if [[ $is_correct -eq 0 ]]; then
       word_list_top[$index]=$'\e[32m'"${word_list_top[index]}"$'\e[0m' # Make previous word green if correct
@@ -217,20 +217,20 @@ load_stats() {
   if [ -f "./stats/stats.json" ]; then
     cat "./stats/stats.json"
   else
-    echo "{}"
+    printf "{}"
   fi
 }
 
 save_stats() {
   local data="$1"
   mkdir -p "./stats"
-  echo "$data" > "./stats/stats.json"
+  printf "%s" "$data" > "./stats/stats.json"
 }
 
 # Check if jq is available
 if ! command -v jq &> /dev/null; then
-  echo "Warning: jq not found. Please install jq for better JSON handling."
-  echo "Installing jq is recommended: sudo apt install jq (Ubuntu/Debian) or brew install jq (macOS)"
+  printf "Warning: jq not found. Please install jq for better JSON handling.\n"
+  printf "Installing jq is recommended: sudo apt install jq (Ubuntu/Debian) or brew install jq (macOS)\n"
   sleep 2
 fi
 
@@ -266,7 +266,7 @@ else
   else
     stats=${stats%?}
     if [[ $stats == *"\"$word_list_file_name\""* ]]; then
-      stats=$(echo "$stats" | sed "s/\"$word_list_file_name\":\[/\"$word_list_file_name\":[$new_entry,/")
+      stats=$(printf "%s" "$stats" | sed "s/\"$word_list_file_name\":\[/\"$word_list_file_name\":[$new_entry,/")
     else
       stats="$stats,\"$word_list_file_name\":[$new_entry]}"
     fi
@@ -277,7 +277,7 @@ save_stats "$stats"
 
 # Render Result Table
 sleep 1
-echo
+printf "\n"
 clear 
 
 draw_top_border "$result_table_width"

@@ -3,7 +3,7 @@
 tput civis # Hide cursor (TODO: figure out a better place to put this - in some terminals it looks laggy without it)
 
 # Configurable variables
-typing_table_width=120
+typing_table_width=90
 result_table_width=42
 prompt_char=">"
 header_separator_char="═"
@@ -113,6 +113,7 @@ display_state() {
 
   word_list_top[$current_word_index]=$'\e[47;40m'"${word_list_top[current_word_index]}"$'\e[0m' # Highlight current word
 
+  draw_separator "$typing_table_width" "" ""
   draw_new_line "$typing_table_width" "$word_list_top" "" "center" "" # Display the top line of words
   draw_new_line "$typing_table_width" "$word_list_bottom" "" "center" "" # Display the bottom line of words
   draw_separator "$typing_table_width" "" ""

@@ -1,16 +1,16 @@
 #!/bin/zsh
 
-# Hide cursor: TODO: figure out a better place to put this (in some terminals without it it will show the cursor on the first line)
-tput civis
+tput civis # Hide cursor (TODO: figure out a better place to put this - in some terminals it looks laggy without it)
 
 # Configurable variables
-typing_table_width=80
+typing_table_width=120
 result_table_width=42
 prompt_char=">"
 header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
-test_duration=25
+test_duration=60
+words=($(cat ./lists/words_top-1000-english-adv.txt))
 
 # Table drawing functions
 draw_top_border() {
@@ -81,7 +81,6 @@ right_align() {
 
 # Typing test functions
 generate_random_word() {
-  local words=("apple" "banana" "cherry" "date" "elder" "fig" "grape" "honey")
   local random_index=$(( ( $(od -An -N2 -i /dev/urandom) % (${#words[@]}) ) + 1 ))
   printf "%s\n" "${words[$random_index]}"
 }

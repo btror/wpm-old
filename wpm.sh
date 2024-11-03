@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-tput civis # Hide cursor (TODO: figure out a better place to put this - in some terminals it looks laggy without it)
+trap 'tput cnorm; exit' INT TERM EXIT # Enable cursor and exit on interrupt
 
 # Configurable variables
 typing_table_width=90
@@ -229,6 +229,3 @@ draw_new_line "$result_table_width" "Incorrect" "$incorrect_words" "right" "$ver
 draw_separator "$result_table_width" "$data_separator_char" "$vertical_border_char"
 draw_new_line "$result_table_width" "$word_list_file_name" "" "center" "$vertical_border_char"
 draw_bottom_border "$result_table_width"
-
-# Show cursor
-tput cnorm

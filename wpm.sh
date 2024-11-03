@@ -3,14 +3,14 @@
 trap 'tput cnorm; exit' INT TERM EXIT # Enable cursor and exit on interrupt
 
 # Configurable variables
-typing_table_width=90
+typing_table_width=100
 result_table_width=42
 file_selection_table_width=45
 prompt_char=">"
 header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
-test_duration=60
+test_duration=10
 word_list_file_name="words_top-250-english-easy.txt"
 
 # Table drawing functions
@@ -210,11 +210,7 @@ if [[ $total_words -gt 0 ]]; then
     accuracy=$(( (correct_words * 100) / total_words ))
 fi
 
-
-
-
-
-# Save results to JSON
+# Replace the JSON handling section with:
 load_stats() {
   if [ -f "./stats/stats.json" ]; then
     cat "./stats/stats.json"
@@ -223,44 +219,63 @@ load_stats() {
   fi
 }
 
-stats=$(load_stats)
-echo "STATS!"
-echo $stats
-sleep 15
-
 save_stats() {
   local data="$1"
-  echo "DATA!"
-  echo $data
-  sleep 15
   mkdir -p "./stats"
   echo "$data" > "./stats/stats.json"
 }
 
+# Check if jq is available
+if ! command -v jq &> /dev/null; then
+  echo "Warning: jq not found. Please install jq for better JSON handling."
+  echo "Installing jq is recommended: sudo apt install jq (Ubuntu/Debian) or brew install jq (macOS)"
+  sleep 2
+fi
+
+# Generate new entry
 current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 new_entry="{\"date\":\"$current_date\",\"wpm\":$wpm,\"keystrokes\":$total_keystrokes,\"accuracy\":$accuracy,\"correct\":$correct_words,\"incorrect\":$incorrect_words}"
-if [[ $stats == "{}" ]]; then
-  stats="{\"$word_list_file_name\":[$new_entry]}"
-else
-  # Check if array for this file exists
-  if [[ $stats == *"\"$word_list_file_name\""* ]]; then
-    # Insert at the beginning of the existing array
-    stats=$(echo "$stats" | sed "s/\"$word_list_file_name\":\[/\"$word_list_file_name\":[$new_entry,/")
+
+# Load existing stats
+mkdir -p "./stats"
+stats=$(load_stats)
+
+# Replace the jq section with this fixed version:
+if command -v jq &> /dev/null; then
+  # Use jq for JSON manipulation
+  if jq -e . >/dev/null 2>&1 <<<"$stats"; then
+    if jq -e ".\"$word_list_file_name\"" >/dev/null 2>&1 <<<"$stats"; then
+      # Update existing array
+      stats=$(jq --arg file "$word_list_file_name" --argjson entry "$new_entry" \
+        '.[$file] = [$entry] + .[$file]' <<<"$stats")
+    else
+      # Create new array
+      stats=$(jq --arg file "$word_list_file_name" --argjson entry "$new_entry" \
+        '. + {($file): [$entry]}' <<<"$stats")
+    fi
   else
-    # Add new array for this file
-    stats=$(echo "$stats" | sed "s/^{/{\"$word_list_file_name\":[$new_entry],/")
+    # Invalid JSON, create new
+    stats="{\"$word_list_file_name\": [$new_entry]}"
+  fi
+else
+  # Fallback to basic string manipulation if jq is not available
+  if [[ $stats == "{}" ]]; then
+    stats="{\"$word_list_file_name\": [$new_entry]}"
+  else
+    stats=${stats%?}
+    if [[ $stats == *"\"$word_list_file_name\""* ]]; then
+      stats=$(echo "$stats" | sed "s/\"$word_list_file_name\":\[/\"$word_list_file_name\":[$new_entry,/")
+    else
+      stats="$stats,\"$word_list_file_name\":[$new_entry]}"
+    fi
   fi
 fi
 
 save_stats "$stats"
 
-
-
-
-
 # Render Result Table
-echo
 sleep 1
+echo
 clear 
 
 draw_top_border "$result_table_width"

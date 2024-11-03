@@ -1,4 +1,5 @@
 # Shell Typing Speed Test
+This is built with z shell in mind and may have compatibility issues with other shells.
 
 ## Required Packages
 `sudo apt install jq`

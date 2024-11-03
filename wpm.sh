@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# Hide cursor
+# Hide cursor: TODO: figure out a better place to put this (in some terminals without it it will show the cursor on the first line)
 tput civis
 
 # Configurable variables

@@ -5,40 +5,13 @@ tput civis # Hide cursor (TODO: figure out a better place to put this - in some 
 # Configurable variables
 typing_table_width=90
 result_table_width=42
+file_selection_table_width=45
 prompt_char=">"
 header_separator_char="═"
 data_separator_char="─"
 vertical_border_char="║"
 test_duration=60
 word_list_file_name="words_top-250-english-easy.txt"
-
-# Add file selection menu
-select_word_list() {
-  local files=()
-  for file in ./lists/*.txt; do
-    files+=($(basename "$file"))
-  done
-
-  echo "Available word lists:"
-  echo "-------------------"
-  for i in {1..${#files[@]}}; do
-    echo "$i) ${files[$i]}"
-  done
-  echo "-------------------"
-  
-  local selection
-  while true; do
-    printf "Select a word list (1-${#files[@]}): "
-    read selection
-    if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#files[@]}" ]; then
-      word_list_file_name="${files[$selection]}"
-      break
-    fi
-    echo "Invalid selection. Please try again."
-  done
-}
-
-select_word_list
 
 # Table drawing functions
 draw_top_border() {
@@ -106,6 +79,35 @@ right_align() {
   local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
   printf "$border_char  %-10s %$((width - 15))s  $border_char\n" "$clean_label" "$value"
 }
+
+# Add file selection menu
+select_word_list() {
+  local files=()
+  for file in ./lists/*.txt; do
+    files+=($(basename "$file"))
+  done
+
+  draw_top_border "$file_selection_table_width"
+  draw_new_line "$file_selection_table_width" "Word Lists" "" "center" "$vertical_border_char"
+  draw_separator "$file_selection_table_width" "$header_separator_char" "$vertical_border_char"
+  for i in {1..${#files[@]}}; do
+    draw_new_line "$file_selection_table_width" "$i." "${files[$i]}" "right" "$vertical_border_char"
+  done
+  draw_bottom_border "$file_selection_table_width"
+
+  local selection
+  while true; do
+    printf "Select (1-${#files[@]}): "
+    read selection
+    if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#files[@]}" ]; then
+      word_list_file_name="${files[$selection]}"
+      break
+    fi
+    printf "%s\n" "Invalid selection. Please try again."
+  done
+}
+
+select_word_list
 
 # Typing test functions
 generate_random_word() {

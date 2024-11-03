@@ -14,69 +14,69 @@ test_duration=25
 
 # Table drawing functions
 draw_top_border() {
-    local width="$1"
-    printf "╔%*s╗\n" "$width" | sed 's/ /═/g'
+  local width="$1"
+  printf "╔%*s╗\n" "$width" | sed 's/ /═/g'
 }
 
 draw_bottom_border() {
-    local width="$1"
-    printf "╚%*s╝\n" "$width" | sed 's/ /═/g'
+  local width="$1"
+  printf "╚%*s╝\n" "$width" | sed 's/ /═/g'
 }
 
 draw_separator() {
-    local width="$1"
-    local separator_char="${2:-─}" # default is '─'
-    local vertical_border_char="${3:-}" # default is empty
+  local width="$1"
+  local separator_char="${2:-─}" # default is '─'
+  local vertical_border_char="${3:-}" # default is empty
 
-    if [[ "$separator_char" == "═" ]]; then
-        printf "╠%*s╣\n" "$width" | sed "s/ /$separator_char/g"
-    else
-        printf "$vertical_border_char%*s$vertical_border_char\n" "$width" | sed "s/ /$separator_char/g"
-    fi
+  if [[ "$separator_char" == "═" ]]; then
+    printf "╠%*s╣\n" "$width" | sed "s/ /$separator_char/g"
+  else
+    printf "$vertical_border_char%*s$vertical_border_char\n" "$width" | sed "s/ /$separator_char/g"
+  fi
 }
 
 draw_new_line() {
-    local width="$1"
-    local label="${2:-}" # default is empty
-    local value="${3:-}" # default is empty
-    local align="${4:-}" # center, left, or right
-    local border_char="${5:-}" # default is empty
+  local width="$1"
+  local label="${2:-}" # default is empty
+  local value="${3:-}" # default is empty
+  local align="${4:-}" # center, left, or right
+  local border_char="${5:-}" # default is empty
 
-    if [[ "$align" == "center" ]]; then
-        center_align "$width" "$label" "$border_char"
-    elif [[ "$align" == "right" ]]; then
-        right_align "$width" "$label" "$value" "$border_char"
-    else
-        left_align "$width" "$label" "$value" "$border_char"
-    fi
+  if [[ "$align" == "center" ]]; then
+    center_align "$width" "$label" "$border_char"
+  elif [[ "$align" == "right" ]]; then
+    right_align "$width" "$label" "$value" "$border_char"
+  else
+    left_align "$width" "$label" "$value" "$border_char"
+  fi
 }
 
 center_align() {
-    local width="$1"
-    local label="$2"
-    local border_char="$3"
-    local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
-    local padding_left=$(( (width - ${#clean_label}) / 2 ))
-    local padding_right=$(( width - ${#clean_label} - padding_left ))
-    printf "$border_char%${padding_left}s%s%${padding_right}s$border_char\n" "" "$label" ""
+  local width="$1"
+  local label="$2"
+  local border_char="$3"
+  local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
+  local padding_left=$(( (width - ${#clean_label}) / 2 ))
+  local padding_right=$(( width - ${#clean_label} - padding_left ))
+  printf "$border_char%${padding_left}s%s%${padding_right}s$border_char\n" "" "$label" ""
 }
 
 left_align() {
-    local width="$1"
-    local label="$2"
-    local value="$3"
-    local border_char="$4"
-    local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
-    printf "$border_char  %-10s %-*s  $border_char\n" "$clean_label" $((width - 15)) "$value"
+  local width="$1"
+  local label="$2"
+  local value="$3"
+  local border_char="$4"
+  local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
+  printf "$border_char  %-10s %-*s  $border_char\n" "$clean_label" $((width - 15)) "$value"
 }
 
 right_align() {
-    local width="$1"
-    local label="$2"
-    local value="$3"
-    local border_char="$4"
-    local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
-    printf "$border_char  %-10s %$((width - 15))s  $border_char\n" "$clean_label" "$value"
+  local width="$1"
+  local label="$2"
+  local value="$3"
+  local border_char="$4"
+  local clean_label=$(printf '%b' "$label" | sed 's/\x1b\[[0-9;]*m//g')
+  printf "$border_char  %-10s %$((width - 15))s  $border_char\n" "$clean_label" "$value"
 }
 
 # Typing test functions
@@ -97,7 +97,20 @@ generate_word_list() {
 
 # Function to display current state
 display_state() {
+  local is_correct="$1"
   clear
+
+  if [[ -n $is_correct && $current_word_index -gt 1 ]]; then
+    index=$((current_word_index - 1))
+    word_list_top[$index]=$(echo "${word_list_top[index]}" | sed 's/\x1b\[[0-9;]*m//g') # Remove existing highlights if any
+
+    if [[ $is_correct -eq 0 ]]; then
+      word_list_top[$index]=$'\e[32m'"${word_list_top[index]}"$'\e[0m' # Make previous word green if correct
+    elif [[ $is_correct -eq 1 ]]; then
+      word_list_top[$index]=$'\e[31m'"${word_list_top[index]}"$'\e[0m' # Make previous word red if incorrect
+    fi
+  fi
+
   word_list_top[$current_word_index]=$'\e[47;40m'"${word_list_top[current_word_index]}"$'\e[0m' # Highlight current word
 
   draw_new_line "$typing_table_width" "$word_list_top" "" "center" "" # Display the top line of words
@@ -132,8 +145,10 @@ while [ $(date +%s) -lt $end_time ]; do
     user_input=${user_input%?}  # remove last character
     display_state
   elif [[ "$char" == " " ]]; then # space keystroke
+    is_correct=1
     if [[ "$user_input" == "${word_list[$current_word_index]}" ]]; then
       correct_words=$((correct_words + 1))
+      is_correct=0
     else
       incorrect_words=$((incorrect_words + 1))
     fi
@@ -148,7 +163,7 @@ while [ $(date +%s) -lt $end_time ]; do
 
     current_word_index=$((current_word_index + 1))
     user_input=""
-    display_state
+    display_state $is_correct
   else
     user_input+=$char
     display_state
